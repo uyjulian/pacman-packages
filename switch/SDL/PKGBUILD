@@ -1,0 +1,46 @@
+# Maintainer:  Dave Murphy <davem@devkitpro.org>
+
+pkgname=switch-sdl
+pkgver=1.2.15
+pkgrel=1
+pkgdesc="A library for portable low-level access to a video framebuffer, audio output, mouse, and keyboard (Nintendo Switch port)"
+arch=('any')
+url="https://libsdl.org"
+license=("LGPL")
+options=(!strip libtool staticlibs)
+makedepends=('switch-pkg-config' 'devkitpro-pkgbuild-helpers' 'devkitA64' 'libnx')
+source=("${url}/release/SDL-${pkgver}.tar.gz" "SDL-1.2.15.patch")
+sha256sums=(
+'d6d316a793e5e348155f0dd93b979798933fb98aa1edebcc108829d6474aad00'
+'b3a00054616be7f73b43d8c0c8f64702e34049ab57b36cab9a5215ef75623198'
+)
+
+groups=('switch-portlibs')
+
+build() {
+  cd SDL-$pkgver
+
+  source /opt/devkitpro/devkita64.sh
+  source /opt/devkitpro/switchvars.sh
+
+  patch -p1 -i $srcdir/SDL-1.2.15.patch
+  ./autogen.sh
+
+  ./configure --prefix="${PORTLIBS_PREFIX}" --host=aarch64-none-elf \
+    --disable-shared --enable-static \
+    --enable-nintendo-switch
+
+  make
+}
+
+package() {
+  cd SDL-$pkgver
+
+  source /opt/devkitpro/devkita64.sh
+  source /opt/devkitpro/switchvars.sh
+
+  make DESTDIR="$pkgdir" install
+
+  # remove useless stuff
+  rm -r "$pkgdir"${PORTLIBS_PREFIX}/share
+}
