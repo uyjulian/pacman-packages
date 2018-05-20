@@ -1,0 +1,60 @@
+# Maintainer:  Dave Murphy <davem@devkitpro.org>
+
+pkgname=switch-sdl_mixer
+pkgver=1.2.12
+pkgrel=2
+pkgdesc="A simple library to load images of various formats as SDL surfaces (Nintendo 3DS port)"
+arch=('any')
+url="https://libsdl.org"
+license=("LGPL")
+options=(!strip libtool staticlibs)
+depends=(
+ 'switch-sdl'
+ 'switch-libvorbisidec'
+ 'switch-libmikmod'
+ 'switch-libogg'
+)
+makedepends=(
+ 'switch-pkg-config'
+ 'devkitpro-pkgbuild-helpers'
+ 'devkitA64'
+)
+
+source=("${url}/projects/SDL_mixer/release/SDL_mixer-${pkgver}.tar.gz" 'config.sub' 'config.guess')
+
+sha256sums=(
+ '1644308279a975799049e4826af2cfc787cad2abb11aa14562e402521f86992a'
+ '72e02ea93447038f8ced24f296b31e0f397bbcc6b32abdcf9b38c80f153433fd'
+ 'fbc2337aa59a204f5d74743b82c8be7aab8b39853b4e54a888008f70430c4305'
+)
+
+build() {
+  cd SDL_mixer-$pkgver
+
+  cp $srcdir/config.sub build-scripts
+  cp $srcdir/config.guess build-scripts
+
+  ./autogen.sh
+
+  source /opt/devkitpro/devkita64.sh
+  source /opt/devkitpro/switchvars.sh
+
+  sed -i 's,\$(objects)/playwave\$(EXE) \$(objects)/playmus\$(EXE),,g' Makefile.in
+
+  LIBS="-logg" ./configure --prefix="${PORTLIBS_PREFIX}" --host=aarch64-none-elf \
+    --disable-shared --enable-static \
+    --enable-music-ogg-tremor \
+    --disable-music-cmd
+
+  make
+}
+
+package() {
+  cd SDL_mixer-$pkgver
+
+  source /opt/devkitpro/devkita64.sh
+  source /opt/devkitpro/switchvars.sh
+
+  make DESTDIR="$pkgdir" install
+
+}
