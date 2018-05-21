@@ -3061,10 +3061,10 @@ index 000000000..d231b8570
 +/* Functions to be exported */
 diff --git a/src/video/switch/SDL_switchvideo.c b/src/video/switch/SDL_switchvideo.c
 new file mode 100644
-index 000000000..44f6db3f4
+index 000000000..7c13896ce
 --- /dev/null
 +++ b/src/video/switch/SDL_switchvideo.c
-@@ -0,0 +1,470 @@
+@@ -0,0 +1,469 @@
 +/*
 +    SDL - Simple DirectMedia Layer
 +    Copyright (C) 1997-2012 Sam Lantinga
@@ -3196,8 +3196,8 @@ index 000000000..44f6db3f4
 +	device->GetWMInfo = NULL;
 +	device->InitOSKeymap = SWITCH_InitOSKeymap;
 +	device->PumpEvents = SWITCH_PumpEvents;
-+	
-+	device->ToggleFullScreen = SWITCH_ToggleFullScreen;	
++
++	device->ToggleFullScreen = SWITCH_ToggleFullScreen;
 +
 +	device->free = SWITCH_DeleteDevice;
 +
@@ -3378,7 +3378,6 @@ index 000000000..44f6db3f4
 +		SDL_free(this->hidden->buffer);
 +		this->hidden->buffer = NULL;
 +	}
-+	gfxConfigureResolution(0, 0);
 +	gfxExit();
 +}
 +
@@ -3399,7 +3398,7 @@ index 000000000..44f6db3f4
 +
 +	if(width > this->info.current_w)
 +		offx = (width - this->info.current_w) / 2;
-+	else 	
++	else
 +		offx = 0;
 +
 +	if(height > this->info.current_h)

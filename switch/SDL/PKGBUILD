@@ -12,7 +12,7 @@ makedepends=('switch-pkg-config' 'devkitpro-pkgbuild-helpers' 'devkitA64' 'libnx
 source=("${url}/release/SDL-${pkgver}.tar.gz" "SDL-1.2.15.patch")
 sha256sums=(
 'd6d316a793e5e348155f0dd93b979798933fb98aa1edebcc108829d6474aad00'
-'b3a00054616be7f73b43d8c0c8f64702e34049ab57b36cab9a5215ef75623198'
+'b80e01af1ead4018132d2f537da2c869f8e3c0070af4c9ddd8937cdbb7cd293d'
 )
 
 groups=('switch-portlibs')
