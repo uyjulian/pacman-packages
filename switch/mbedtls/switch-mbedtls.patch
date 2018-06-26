@@ -1,7 +1,6 @@
-diff --git a/include/mbedtls/config.h b/include/mbedtls/config.h
-index 79eedffd..7294a9da 100644
---- a/include/mbedtls/config.h
-+++ b/include/mbedtls/config.h
+diff -NBaur mbedtls-2.9.0/include/mbedtls/config.h switch-mbedtls-2.9.0/include/mbedtls/config.h
+--- mbedtls-2.9.0/include/mbedtls/config.h	2018-05-01 15:28:18.000000000 +0100
++++ switch-mbedtls-2.9.0/include/mbedtls/config.h	2018-06-26 18:11:25.725319571 +0100
 @@ -435,7 +435,7 @@
   *
   * Uncomment to use your own hardware entropy collector.
@@ -11,7 +10,7 @@ index 79eedffd..7294a9da 100644
  
  /**
   * \def MBEDTLS_AES_ROM_TABLES
-@@ -944,7 +944,7 @@
+@@ -978,7 +978,7 @@
   *
   * Uncomment this macro to disable the built-in platform entropy functions.
   */
@@ -20,7 +19,7 @@ index 79eedffd..7294a9da 100644
  
  /**
   * \def MBEDTLS_ENTROPY_FORCE_SHA256
-@@ -1061,7 +1061,7 @@
+@@ -1096,7 +1096,7 @@
   *
   * Enable the checkup functions (*_self_test).
   */
@@ -29,7 +28,7 @@ index 79eedffd..7294a9da 100644
  
  /**
   * \def MBEDTLS_SHA256_SMALLER
-@@ -2531,7 +2531,7 @@
+@@ -2593,7 +2593,7 @@
   *
   * This module is used by the HAVEGE random number generator.
   */
@@ -38,20 +37,18 @@ index 79eedffd..7294a9da 100644
  
  /**
   * \def MBEDTLS_VERSION_C
-diff --git a/library/entropy.c b/library/entropy.c
-index e17512e7..871f7863 100644
---- a/library/entropy.c
-+++ b/library/entropy.c
-@@ -123,6 +123,20 @@ void mbedtls_entropy_init( mbedtls_entropy_context *ctx )
+diff -NBaur mbedtls-2.9.0/library/entropy.c switch-mbedtls-2.9.0/library/entropy.c
+--- mbedtls-2.9.0/library/entropy.c	2018-05-01 15:28:18.000000000 +0100
++++ switch-mbedtls-2.9.0/library/entropy.c	2018-06-26 18:12:19.485719323 +0100
+@@ -123,6 +123,19 @@
  #endif /* MBEDTLS_NO_DEFAULT_ENTROPY_SOURCES */
  }
  
-+#define LIBNX
-+#ifdef LIBNX
++#ifdef __SWITCH__
 +    #include <switch.h>
 +    int mbedtls_hardware_poll( void *data,
 +                               unsigned char *output, size_t len, size_t *olen )
-+    { 
++    {
 +        (void)(data);
 +        csrngGetRandomBytes(output, len);
 +        if(olen)
@@ -63,10 +60,9 @@ index e17512e7..871f7863 100644
  void mbedtls_entropy_free( mbedtls_entropy_context *ctx )
  {
  #if defined(MBEDTLS_HAVEGE_C)
-diff --git a/library/net_sockets.c b/library/net_sockets.c
-index 345f1022..846e798d 100644
---- a/library/net_sockets.c
-+++ b/library/net_sockets.c
+diff -NBaur mbedtls-2.9.0/library/net_sockets.c switch-mbedtls-2.9.0/library/net_sockets.c
+--- mbedtls-2.9.0/library/net_sockets.c	2018-05-01 15:28:18.000000000 +0100
++++ switch-mbedtls-2.9.0/library/net_sockets.c	2018-06-26 18:11:25.725319571 +0100
 @@ -27,11 +27,6 @@
  
  #if defined(MBEDTLS_NET_C)
@@ -79,7 +75,7 @@ index 345f1022..846e798d 100644
  #if defined(MBEDTLS_PLATFORM_C)
  #include "mbedtls/platform.h"
  #else
-@@ -398,7 +393,7 @@ int mbedtls_net_accept( mbedtls_net_context *bind_ctx,
+@@ -402,7 +397,7 @@
  
              memcpy( client_ip, &addr4->sin_addr.s_addr, *ip_len );
          }
@@ -88,7 +84,7 @@ index 345f1022..846e798d 100644
          {
              struct sockaddr_in6 *addr6 = (struct sockaddr_in6 *) &client_addr;
              *ip_len = sizeof( addr6->sin6_addr.s6_addr );
-@@ -407,7 +402,7 @@ int mbedtls_net_accept( mbedtls_net_context *bind_ctx,
+@@ -411,7 +406,7 @@
                  return( MBEDTLS_ERR_NET_BUFFER_TOO_SMALL );
  
              memcpy( client_ip, &addr6->sin6_addr.s6_addr, *ip_len);
@@ -97,4 +93,3 @@ index 345f1022..846e798d 100644
      }
  
      return( 0 );
-
