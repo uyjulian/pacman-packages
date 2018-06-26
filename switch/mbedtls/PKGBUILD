@@ -13,7 +13,7 @@ source=(
     'switch-mbedtls.patch'
 )
 
-sha256sums=('SKIP' 'SKIP')
+sha256sums=('a06a9b43e583b7e6707becfeeb13d88ed00f25fee31a5386cb3a3014c454bad8' 'ea211f1fb25f1ce5948ab83827a8cbca3415ed84367491ff5620906a9750ff59')
 
 build() {
   cd mbedtls-$pkgver
