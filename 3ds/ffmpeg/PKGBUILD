@@ -1,0 +1,52 @@
+# Maintainer:  Dave Murphy <davem@devkitpro.org>
+
+pkgname=3ds-ffmpeg
+pkgver=4.0.1
+pkgrel=1
+pkgdesc='Free and open video compression codec from the Xiph.org Foundation'
+arch=('any')
+url='https://www.ffmpeg.org/'
+license=(Xiph.org)
+options=(!strip libtool staticlibs)
+source=("https://www.ffmpeg.org/releases/ffmpeg-${pkgver}.tar.xz")
+sha256sums=('605f5c01c60db35d3b617a79cabb2c7032412be243554602eeed1b628125c0ee')
+makedepends=('3ds-pkg-config' 'devkitpro-pkgbuild-helpers')
+groups=('3ds-portlibs')
+build() {
+  cd ffmpeg-$pkgver
+
+  source /opt/devkitpro/3dsvars.sh
+
+  libs=-lctru ./configure --prefix="${PORTLIBS_PREFIX}" \
+    --enable-cross-compile --cross-prefix=arm-none-eabi- \
+    --pkg-config=${PORTLIBS_PREFIX}/bin/arm-none-eabi-pkg-config \
+    --disable-shared --disable-runtime-cpudetect --disable-armv5te --disable-programs \
+    --disable-doc \
+    --disable-everything \
+    --enable-decoder='aac,mpeg4,h264,mp1,mp2,mp3' \
+    --enable-demuxer='aac,avi,mp4,mov,webm,matroska,mp3' \
+    --enable-filter='rotate,transpose' --enable-protocol='file' \
+    --enable-static --enable-small --disable-debug \
+    --arch=armv6k --cpu=mpcore --disable-armv6t2 --disable-neon --target-os=none \
+    --extra-cflags=' -DARM11 -D_3DS -mword-relocations -march=armv6k -mtune=mpcore -mfloat-abi=hard' \
+    --extra-cxxflags=' -DARM11 -D_3DS -mword-relocations -fno-rtti -march=armv6k -mtune=mpcore -mfloat-abi=hard' \
+    --extra-ldflags=' -march=armv6k -mtune=mpcore -mfloat-abi=hard ' \
+    --disable-iconv --disable-lzma \
+    --disable-network \
+    --disable-securetransport --disable-xlib
+
+  make
+}
+
+package() {
+  cd ffmpeg-$pkgver
+
+  source /opt/devkitpro/3dsvars.sh
+
+  make DESTDIR="$pkgdir" install
+
+  install -Dm644 COPYING.GPLv2 "$pkgdir"${PORTLIBS_PREFIX}/licenses/$pkgname/COPYING.GPLv2
+
+  # remove useless examples
+  rm -r "$pkgdir"${PORTLIBS_PREFIX}/share
+}
