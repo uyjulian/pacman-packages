@@ -1,0 +1,51 @@
+# Maintainer:  Dave Murphy <davem@devkitpro.org>
+# Contributor: Julian Uy <uyjulian@gmail.com>
+
+pkgname=switch-mupdf
+pkgver=1.16.1
+pkgrel=1
+pkgdesc='MuPDF is a lightweight PDF, XPS, and E-book viewer.'
+arch=('any')
+url='https://www.mupdf.com/'
+license=('AGPL')
+options=(!strip libtool staticlibs)
+depends=("switch-freetype"
+         "switch-libjpeg-turbo"
+         "switch-zlib"
+)
+makedepends=('devkitpro-pkgbuild-helpers')
+source=("https://www.mupdf.com/downloads/archive/mupdf-$pkgver-source.tar.xz" "mupdf.patch")
+sha256sums=(
+  '6fe78184bd5208f9595e4d7f92bc8df50af30fbe8e2c1298b581c84945f2f5da'
+  '71543c287162cf71d7dff9a6d6ea1fa9b16c9f8d6975ebf66a9d154c986f4f7f'
+)
+
+build() {
+  cd mupdf-$pkgver-source
+
+  patch --strip=1 --input=$srcdir/mupdf.patch
+
+  make generate
+
+  source /opt/devkitpro/switchvars.sh
+
+  make build=release \
+    CC=${TOOL_PREFIX}gcc CXX=${TOOL_PREFIX}g++ AR=${TOOL_PREFIX}ar \
+    LD=${TOOL_PREFIX}ld RANLIB=${TOOL_PREFIX}ranlib \
+    XCFLAGS="${CPPFLAGS} '-Dtimegm(x)=-1'" \
+    OS=switch \
+    USE_SYSTEM_FREETYPE=yes SYS_FREETYPE_CFLAGS="`freetype-config --cflags`" SYS_FREETYPE_LIBS="`freetype-config --libs`" \
+    USE_SYSTEM_LIBJPEG=yes \
+    USE_SYSTEM_ZLIB=yes
+}
+
+package() {
+  cd mupdf-$pkgver-source
+  make build=release \
+    prefix="${PORTLIBS_PREFIX}" DESTDIR="$pkgdir" \
+    OS=switch \
+    USE_SYSTEM_FREETYPE=yes \
+    USE_SYSTEM_LIBJPEG=yes \
+    USE_SYSTEM_ZLIB=yes \
+    install
+}

@@ -1,0 +1,66 @@
+diff -burN mupdf-1.16.1-source.orig/source/fitz/stream-open.c mupdf-1.16.1-source/source/fitz/stream-open.c
+--- mupdf-1.16.1-source.orig/source/fitz/stream-open.c	2019-08-02 09:49:26.000000000 -0500
++++ mupdf-1.16.1-source/source/fitz/stream-open.c	2019-10-01 00:31:31.325868186 -0500
+@@ -101,12 +101,21 @@
+ {
+ 	FILE *file;
+ 	unsigned char buffer[4096];
++	const char *file_name;
+ } fz_file_stream;
+ 
+ static int next_file(fz_context *ctx, fz_stream *stm, size_t n)
+ {
+ 	fz_file_stream *state = stm->state;
+ 
++	/* FIXME: Multiple calls to fseek/fread return incorrect part of file */
++	if (state->file_name)
++	{
++	    fclose(state->file);
++	    state->file = fopen(state->file_name, "rb");
++	    fseek(state->file, stm->pos, 0);
++	}
++
+ 	/* n is only a hint, that we can safely ignore */
+ 	n = fread(state->buffer, 1, sizeof(state->buffer), state->file);
+ 	if (n < sizeof(state->buffer) && ferror(state->file))
+@@ -145,15 +154,21 @@
+ 	int n = fclose(state->file);
+ 	if (n < 0)
+ 		fz_warn(ctx, "close error: %s", strerror(errno));
++	if (state->file_name)
++		free(state->file_name);
+ 	fz_free(ctx, state);
+ }
+ 
+ static fz_stream *
+-fz_open_file_ptr(fz_context *ctx, FILE *file)
++fz_open_file_ptr(fz_context *ctx, FILE *file, const char* file_name)
+ {
+ 	fz_stream *stm;
+ 	fz_file_stream *state = fz_malloc_struct(ctx, fz_file_stream);
+ 	state->file = file;
++	if (file_name)
++		state->file_name = (const char*)strdup(file_name);
++	else
++		state->file_name = NULL;
+ 
+ 	stm = fz_new_stream(ctx, state, next_file, drop_file);
+ 	stm->seek = seek_file;
+@@ -163,7 +178,7 @@
+ 
+ fz_stream *fz_open_file_ptr_no_close(fz_context *ctx, FILE *file)
+ {
+-	fz_stream *stm = fz_open_file_ptr(ctx, file);
++	fz_stream *stm = fz_open_file_ptr(ctx, file, NULL);
+ 	/* We don't own the file ptr. Ensure we don't close it */
+ 	stm->drop = fz_free;
+ 	return stm;
+@@ -190,7 +205,7 @@
+ #endif
+ 	if (file == NULL)
+ 		fz_throw(ctx, FZ_ERROR_GENERIC, "cannot open %s: %s", name, strerror(errno));
+-	return fz_open_file_ptr(ctx, file);
++	return fz_open_file_ptr(ctx, file, name);
+ }
+ 
+ #ifdef _WIN32
