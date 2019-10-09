@@ -5,15 +5,14 @@
 
 pkgname=switch-ffmpeg
 pkgver=4.1.1
-pkgrel=2
+pkgrel=5
 pkgdesc='ffmpeg port (for Nintendo Switch homebrew development)'
 arch=('any')
 url='https://ffmpeg.org/'
 license=('LGPL' 'GPL')
 options=(!strip staticlibs)
 makedepends=('switch-pkg-config' 'devkitpro-pkgbuild-helpers')
-depends=('switch-zlib' 'switch-bzip2' 'switch-libass' 'switch-libfribidi'
-         'switch-freetype' 'switch-libopus' 'switch-libtheora' 'switch-libvpx')
+depends=('switch-zlib')
 source=("https://ffmpeg.org/releases/ffmpeg-$pkgver.tar.xz" "ffmpeg.patch")
 sha256sums=(
  '373749824dfd334d84e55dff406729edfd1606575ee44dd485d97d45ea4d2d86'
@@ -34,17 +33,25 @@ build() {
   ./configure --prefix=$PORTLIBS_PREFIX --disable-shared --enable-static \
     --cross-prefix=aarch64-none-elf- --enable-cross-compile \
     --arch=aarch64 --target-os=horizon --enable-pic --disable-asm \
-    --extra-cflags='-D__SWITCH__ -D_GNU_SOURCE -O2 -march=armv8-a -mtune=cortex-a57 -mtp=soft -fPIC -ftls-model=local-exec' \
-    --extra-cxxflags='-D__SWITCH__ -D_GNU_SOURCE -O2 -march=armv8-a -mtune=cortex-a57 -mtp=soft -fPIC -ftls-model=local-exec' \
+    --extra-cflags='-D__SWITCH__ -D_GNU_SOURCE -Ofast -march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIC -ftls-model=local-exec' \
+    --extra-cxxflags='-D__SWITCH__ -D_GNU_SOURCE -Ofast -march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIC -ftls-model=local-exec' \
     --extra-ldflags='-fPIE -L${PORTLIBS_PREFIX}/lib -L${DEVKITPRO}/libnx/lib' \
     --disable-runtime-cpudetect --disable-programs --disable-debug --disable-doc \
-    --enable-network --disable-hwaccels --disable-encoders \
-    --disable-avdevice --enable-swscale --enable-swresample \
-    --enable-libass --enable-libfreetype --enable-libfribidi --enable-libopus --enable-libtheora --enable-libvpx \
-    --enable-filter='rotate,transpose' \
-    --disable-protocols --enable-protocol=file,http,ftp,tcp,udp,rtmp \
-    --disable-demuxers --enable-demuxer=h264,matroska,mov,ogg,rtsp,mpegts \
-    --disable-parsers --enable-parser=h264,aac
+    --disable-network --disable-hwaccels --disable-encoders --disable-muxers --disable-bzlib --disable-lzma \
+    --disable-devices \
+    --disable-filters \
+    --disable-bsfs \
+    --disable-d3d11va \
+    --disable-dxva2 \
+    --disable-vaapi \
+    --disable-vdpau \
+    --disable-videotoolbox \
+    --disable-iconv \
+    --disable-avdevice --enable-avresample \
+    --disable-decoders --enable-decoder=flac,mp2,mp3,mp3on4,mpeg1video,mpeg2video,mpegvideo,msmpeg4v1,msmpeg4v2,msmpeg4v3,mpeg4,pcm_dvd,pcm_s16be,pcm_s16le,pcm_s8,pcm_u16be,pcm_u16le,pcm_u8,theora,vorbis,opus,vp3,vp8,vp9 \
+    --disable-protocols \
+    --disable-demuxers --enable-demuxer=au,avi,flac,m4v,matroska,mov,mp3,mpegps,mpegts,mpegtsraw,mpegvideo,ogg,wav \
+    --disable-parsers --enable-parser=mpegaudio,mpegvideo,mpeg4video,vp3,vp8
 
   make
 }
