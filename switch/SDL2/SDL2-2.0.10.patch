@@ -617,6 +617,19 @@ index 000000000..f5e0340fb
 +};
 +
 +#endif /* SDL_switchaudio_h_ */
+diff --git a/src/cpuinfo/SDL_cpuinfo.c b/src/cpuinfo/SDL_cpuinfo.c
+index c4dd6633c..841764733 100644
+--- a/src/cpuinfo/SDL_cpuinfo.c
++++ b/src/cpuinfo/SDL_cpuinfo.c
+@@ -769,7 +769,7 @@ SDL_GetSystemRAM(void)
+ #endif
+ #ifdef HAVE_SYSCTLBYNAME
+         if (SDL_SystemRAM <= 0) {
+-#if defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || defined(__NetBSD__)
++#if defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || defined(__NetBSD__) || defined(__SWITCH__)
+ #ifdef HW_REALMEM
+             int mib[2] = {CTL_HW, HW_REALMEM};
+ #else
 diff --git a/src/dynapi/SDL_dynapi.h b/src/dynapi/SDL_dynapi.h
 index 0d2cf713c..32b5011b3 100644
 --- a/src/dynapi/SDL_dynapi.h

@@ -14,7 +14,7 @@ source=("${url}/release/SDL2-${pkgver}.tar.gz" "SDL2-${pkgver}.patch")
 groups=('switch-portlibs' 'switch-sdl2')
 sha256sums=(
   'b4656c13a1f0d0023ae2f4a9cf08ec92fffb464e0f24238337784159b8b91d57'
-  '6814e0f9c6b6e4a59faeca3b60dc35523dd8e82f4eb712ba7df5c1ac2179efa4'
+  '9ac98391ee721093a995433884616a6f592e77a8a263c9e7d3b79bcb0b5e2b42'
 )
 
 build() {
@@ -29,7 +29,7 @@ build() {
   --enable-audio \
   --enable-joystick \
   --disable-power \
-  --disable-cpuinfo \
+  --enable-cpuinfo \
   --disable-filesystem \
   --enable-threads \
   --enable-timers \
